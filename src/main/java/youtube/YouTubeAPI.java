@@ -22,9 +22,7 @@ public class YouTubeAPI extends YouTube{
     private static final String FIELDS = "pageInfo,nextPageToken,items(snippet(title))";
     private static final String MAX_RESULTS = "50";
 
-
      String site;
-
 
     public YouTubeAPI(String site) {
         super(site);
@@ -35,9 +33,8 @@ public class YouTubeAPI extends YouTube{
     public ArrayList<String> parsingContent() {
         String nextPageToken = "";
 
-
         ArrayList<String> list = new ArrayList<>();
-        do {
+        while (true) {
             JSONObject jsonObject = new JSONObject(new YouTubeAPI(site).api_Get(nextPageToken));
             JSONArray jsonArray = jsonObject.getJSONArray("items");
 
@@ -51,10 +48,7 @@ public class YouTubeAPI extends YouTube{
             } catch (JSONException e) {
                 break;
             }
-
-
-        } while (!nextPageToken.equals(""));
-
+        }
         return list;
     }
 
@@ -74,6 +68,7 @@ public class YouTubeAPI extends YouTube{
             builder.addParameter("maxResults", MAX_RESULTS);
             builder.addParameter("pageToken", pageToken);
         } catch (URISyntaxException e) {
+            logger.error("Could not get the result using YouTube API");
             e.printStackTrace();
         }
 

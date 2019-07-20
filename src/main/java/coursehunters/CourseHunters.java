@@ -4,12 +4,11 @@ import dao.Parser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class CourseHunters implements Parser {
@@ -23,6 +22,7 @@ public class CourseHunters implements Parser {
             this.site = site;
             this.doc = Jsoup.connect(site).get();
         } catch (IOException e) {
+            logger.error("Could not connect to the site.");
             e.printStackTrace();
         }
     }
@@ -33,30 +33,11 @@ public class CourseHunters implements Parser {
     }
 
     @Override
-    public Elements parsingContent() {
-        return doc.getElementsByClass("lessons-name");
-    }
-
-    @Override
-    public void writeFile(Elements elements) {
-        if (elements != null) {
-            try {
-                FileWriter writer = new FileWriter("coursehunters.txt", false);
-                writer.write(parsingTitle() + '\n' + '\n');
-                int i = 1;
-
-                writer.write(site + '\n' + '\n');
-                for (Element e : elements) {
-                    writer.write(i + ") " + e.text() + '\n');
-                    i++;
-
-                }
-                writer.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            logger.error("Item list is empty!");
+    public ArrayList<String> parsingContent() {
+        ArrayList content = new ArrayList();
+        for (Element e : doc.getElementsByClass("lessons-name")) {
+            content.add(e.text());
         }
+        return content;
     }
 }

@@ -4,13 +4,17 @@ import dao.Parser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
+/**
+ * Use YouTubeAPI
+ */
+
+@Deprecated
 public class YouTube implements Parser {
     private static final Logger logger = LoggerFactory.getLogger(YouTube.class);
 
@@ -22,6 +26,7 @@ public class YouTube implements Parser {
             this.site = site;
             this.doc = Jsoup.connect(site).get();
         } catch (IOException e) {
+            logger.error("Could not connect to the site.");
             e.printStackTrace();
         }
     }
@@ -32,29 +37,11 @@ public class YouTube implements Parser {
     }
 
     @Override
-    public Elements parsingContent() {
-        return doc.getElementsByTag("tr");
-    }
-
-    @Override
-    public void writeFile(Elements elements) {
-        if (elements != null) {
-            try {
-                FileWriter writer = new FileWriter("youtube.txt", false);
-                writer.write(parsingTitle() + '\n' + '\n');
-                int i = 1;
-
-                writer.write(site + '\n' + '\n');
-                for (Element e : elements) {
-                    writer.write(i + ") " + e.attr("data-title") + '\n');
-                    i++;
-                }
-                writer.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            logger.error("Item list is empty!");
+    public ArrayList<String> parsingContent() {
+        ArrayList content = new ArrayList();
+        for (Element e : doc.getElementsByTag("tr")) {
+            content.add(e.attr("data-title"));
         }
+        return content;
     }
 }

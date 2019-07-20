@@ -1,8 +1,8 @@
 import coursehunters.CourseHunters;
-import dao.Parser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import youtube.YouTube;
+import youtube.YouTubeAPI;
 
 class CheckSite {
     private String site;
@@ -11,18 +11,16 @@ class CheckSite {
         this.site = site;
     }
 
-    Parser validateSite() {
-        Parser parser = null;
-
+    void validateSite() {
         final Logger logger = LoggerFactory.getLogger(CheckSite.class);
         if (site.matches(".*\\byoutube\\b.*")) {
-            parser = new YouTube(site);
+            YouTubeAPI youTubeAPI = new YouTubeAPI(site);
+            youTubeAPI.writeFile(youTubeAPI.parsingContent(), site);
         } else if (site.matches(".*\\bcoursehunters\\b.*")) {
-            parser = new CourseHunters(site);
+            CourseHunters courseHunters = new CourseHunters(site);
+            courseHunters.writeFile(courseHunters.parsingContent(), site);
         } else {
             logger.error("Site not defined");
         }
-
-        return parser;
     }
 }
