@@ -1,3 +1,5 @@
+package dao;
+
 import coursehunters.CourseHunters;
 
 import org.slf4j.Logger;
@@ -7,14 +9,14 @@ import youtube.YouTubeAPI;
 
 import java.util.ArrayList;
 
-class CheckSite {
+public class CheckSite {
     private String site;
 
-    CheckSite(String site) {
+    public CheckSite(String site) {
         this.site = site;
     }
 
-    void validateSite() {
+    public void validateSite() {
         final Logger logger = LoggerFactory.getLogger(CheckSite.class);
         if (site.matches(".*\\byoutube\\b.*")) {
             YouTubeAPI youTubeAPI = new YouTubeAPI(site);

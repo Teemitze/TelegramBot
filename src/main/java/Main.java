@@ -1,11 +1,18 @@
-import java.util.Scanner;
+import org.telegram.telegrambots.ApiContextInitializer;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import telegrambot.TrelloBot;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        System.out.print("Enter link: ");
-        CheckSite checkSite = new CheckSite(in.next().trim());
-        checkSite.validateSite();
-        in.close();
+        ApiContextInitializer.init();
+
+        TelegramBotsApi botsApi = new TelegramBotsApi();
+
+        try {
+            botsApi.registerBot(new TrelloBot());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 }
