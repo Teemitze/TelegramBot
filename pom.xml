@@ -11,23 +11,23 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>2.1.0</version>
                 <configuration>
-                    <archive>
-                        <manifest>
+                    <assembleDirectory>target</assembleDirectory>
+                    <programs>
+                        <program>
                             <mainClass>Main</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
+                            <name>teemitze-anna-bot</name>
+                        </program>
+                    </programs>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>assemble</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -74,7 +74,13 @@
             <artifactId>json</artifactId>
             <version>20180813</version>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/appassembler-maven-plugin -->
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>appassembler-maven-plugin</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.telegram/telegrambots -->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
