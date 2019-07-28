@@ -14,25 +14,29 @@ public interface Parser {
 
     ArrayList parsingContent();
 
+    String getSite();
+
     default void writeFile(ArrayList<String> content, String site) {
         if (!content.isEmpty()) {
             try {
                 FileWriter writer = new FileWriter("result.txt");
-                writer.write(parsingTitle() + '\n' + '\n');
-                int i = 1;
-
-                writer.write(site + '\n' + '\n');
-                for (String e : content) {
-                    writer.write(i + ") " + e + '\n');
-                    i++;
+                String title = parsingTitle();
+                if (title != null) {
+                    writer.write(title + '\n' + '\n');
+                    logger.info("Title: {}", title);
+                    writer.write(site + '\n' + '\n');
+                    for (String element : content) {
+                        writer.write((content.indexOf(element) + 1) + ") " + element + '\n');
+                    }
+                } else {
+                    logger.error("Title is empty!");
                 }
                 writer.flush();
             } catch (IOException e) {
-                logger.error("Could not create/write file");
-                e.printStackTrace();
+                logger.error("Input output error!");
             }
         } else {
-            logger.error("The list of items to parse is empty");
+            logger.error("Content is empty!");
         }
     }
 }

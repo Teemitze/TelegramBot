@@ -1,5 +1,6 @@
 package trello;
 
+import dao.Parser;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.http.client.utils.URIBuilder;
@@ -8,17 +9,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 public class TrelloAPI {
 
-    private static final Logger logger = LoggerFactory.getLogger(TrelloAPI.class);
+    private final Logger logger = LoggerFactory.getLogger(TrelloAPI.class);
 
     private static final String TRELLO_API = "https://api.trello.com/1/";
     private static final String KEY_API = "07b44335e6da7a0f889bfd6fd3eba8a4";
     private static final String TOKEN = "c306f42077243f09bc71eb3bbaf4f96ee722548a370af8c9de9d17b253d8802d";
     private static final String ID_LIST = "5d3b0bdbdb63191350a43fdb";
+    private static final String CHECK_LIST_NAME = "Чек-лист";
 
-    public String AddCard(String name, String desc) {
+    private String AddCard(String name, String desc) {
         HttpClient client = new HttpClient();
 
         URIBuilder builder = null;
@@ -50,7 +53,7 @@ public class TrelloAPI {
         return result;
     }
 
-    public String AddCheckList(String idCard, String checkListName) {
+    private String AddCheckList(String idCard) {
         HttpClient client = new HttpClient();
 
         URIBuilder builder = null;
@@ -58,7 +61,7 @@ public class TrelloAPI {
         try {
             builder = new URIBuilder(TRELLO_API + "checklists");
             builder.addParameter("idCard", idCard);
-            builder.addParameter("name", checkListName);
+            builder.addParameter("name", CHECK_LIST_NAME);
             builder.addParameter("key", KEY_API);
             builder.addParameter("token", TOKEN);
         } catch (URISyntaxException e) {
@@ -67,13 +70,11 @@ public class TrelloAPI {
         }
 
         PostMethod method = new PostMethod(builder.toString());
-        System.out.println(builder.toString());
 
         try {
             client.executeMethod(method);
             byte[] responseBody = method.getResponseBody();
             JSONObject jsonObject = new JSONObject(new String(responseBody));
-            System.out.println(jsonObject);
             idCheckList = (String) jsonObject.get("id");
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,7 +82,7 @@ public class TrelloAPI {
 
         return idCheckList;
     }
-    public void AddCheckBox(String idCheckList, String checkBoxName) {
+    private void AddCheckBox(String idCheckList, String checkBoxName) {
         HttpClient client = new HttpClient();
 
         URIBuilder builder = null;
@@ -98,12 +99,25 @@ public class TrelloAPI {
         }
 
         PostMethod method = new PostMethod(builder.toString());
-        System.out.println(builder.toString());
 
         try {
             client.executeMethod(method);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void trelloFillCard(Parser parser){
+        TrelloAPI trelloAPI = new TrelloAPI();
+        String title = parser.parsingTitle();
+        ArrayList<String> content = parser.parsingContent();
+        String idCard = trelloAPI.AddCard(title, parser.getSite());
+        String idCheckList = trelloAPI.AddCheckList(idCard);
+        for (String s: content) {
+            if (content.indexOf(s) == 200) {
+                idCheckList = trelloAPI.AddCheckList(idCard);
+            }
+            trelloAPI.AddCheckBox(idCheckList, s);
         }
     }
 }

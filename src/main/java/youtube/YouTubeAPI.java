@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-public class YouTubeAPI extends YouTube{
+public class YouTubeAPI extends YouTube {
 
-    private static final Logger logger = LoggerFactory.getLogger(YouTubeAPI.class);
+    private final Logger logger = LoggerFactory.getLogger(YouTubeAPI.class);
 
     private static final String YOU_TUBE_API = "https://www.googleapis.com/youtube/v3/playlistItems";
     private static final String PART = "snippet";
@@ -22,7 +22,12 @@ public class YouTubeAPI extends YouTube{
     private static final String FIELDS = "pageInfo,nextPageToken,items(snippet(title))";
     private static final String MAX_RESULTS = "50";
 
-     String site;
+    private String site;
+
+    @Override
+    public String getSite() {
+        return site;
+    }
 
     public YouTubeAPI(String site) {
         super(site);
@@ -33,18 +38,24 @@ public class YouTubeAPI extends YouTube{
     public ArrayList<String> parsingContent() {
         String nextPageToken = "";
 
+        YouTubeAPI youTubeAPI = new YouTubeAPI(site);
+        logger.info("Site: {}", site);
         ArrayList<String> list = new ArrayList<>();
-        while (true) {
-            JSONObject jsonObject = new JSONObject(new YouTubeAPI(site).api_Get(nextPageToken));
-            JSONArray jsonArray = jsonObject.getJSONArray("items");
 
-            for (Object s : jsonArray) {
-                JSONObject jsonObject1 = (JSONObject) s;
-                JSONObject jsonObject2 = (JSONObject) jsonObject1.get("snippet");
-                list.add(jsonObject2.get("title").toString());
+        logger.info("Title: {}", youTubeAPI.parsingTitle());
+
+        while (true) {
+            JSONObject pageJson = new JSONObject(youTubeAPI.api_Get(nextPageToken));
+            JSONArray items = pageJson.getJSONArray("items");
+
+            for (Object s : items) {
+                JSONObject jsonObject = (JSONObject) s;
+                String element = jsonObject.getJSONObject("snippet").getString("title");
+                list.add(element);
+                logger.info((list.indexOf(element) + 1) + ") " + element);
             }
             try {
-                nextPageToken = jsonObject.getString("nextPageToken");
+                nextPageToken = pageJson.getString("nextPageToken");
             } catch (JSONException e) {
                 break;
             }
@@ -53,7 +64,7 @@ public class YouTubeAPI extends YouTube{
     }
 
 
-    public String api_Get (String pageToken) {
+    public String api_Get(String pageToken) {
         String playlistId = site.trim().substring(38);
         HttpClient client = new HttpClient();
         String result = null;

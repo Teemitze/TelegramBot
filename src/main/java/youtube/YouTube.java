@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 @Deprecated
 public class YouTube implements Parser {
-    private static final Logger logger = LoggerFactory.getLogger(YouTube.class);
+    private final Logger logger = LoggerFactory.getLogger(YouTube.class);
 
     private String site;
     private Document doc;
@@ -43,5 +43,10 @@ public class YouTube implements Parser {
             content.add(e.attr("data-title"));
         }
         return content;
+    }
+
+    @Override
+    public String getSite() {
+        return site;
     }
 }
