@@ -20,7 +20,7 @@ public class CheckSite {
 
         if ((site.matches(".*\\byoutube\\b.*"))) {
             result = new YouTubeAPI(site);
-        } else if (site.matches(".*\\bcoursehunters\\b.*")) {
+        } else if (site.matches(".*\\bcoursehunter\\b.*")) {
             result = new CourseHunters(site);
         } else {
             logger.error("Site not defined");
