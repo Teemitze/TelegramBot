@@ -1,6 +1,6 @@
 package youtube;
 
-import dao.Parser;
+import parsers.Parser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

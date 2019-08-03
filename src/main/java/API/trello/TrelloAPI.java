@@ -1,6 +1,6 @@
-package trello;
+package API;
 
-import dao.Parser;
+import parsers.Parser;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.http.client.utils.URIBuilder;
