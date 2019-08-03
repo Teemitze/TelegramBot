@@ -1,13 +1,20 @@
 package API.yandexWeather;
 
- class Translate {
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-     /**
-      * Метод переводит значение condition из HTTP ответа на русский
-      * @param condition погодное описание на английском
-      * @return погодное описание на русском
-      */
-     String translateWeatherCondition(String condition){
+/**
+ * Класс предназначен для конвертации данных в более удобный вид
+ */
+class Converter {
+
+    /**
+     * Метод переводит значение condition из HTTP ответа на русский
+     *
+     * @param condition погодное описание на английском
+     * @return погодное описание на русском
+     */
+    String translateWeatherCondition(String condition) {
         switch (condition) {
             case ("clear"):
                 condition = "ясно";
@@ -68,12 +75,13 @@ package API.yandexWeather;
         return condition;
     }
 
-     /**
-      * Метод переводит одно из значений parts из HTTP ответа на русский
-      * @param part часть суток на английском
-      * @return часть суток на русском
-      */
-     String translatePartsDay(String part){
+    /**
+     * Метод переводит одно из значений parts из HTTP ответа на русский
+     *
+     * @param part часть суток на английском
+     * @return часть суток на русском
+     */
+    String translatePartsDay(String part) {
         switch (part) {
             case "morning":
                 part = "Утром";
@@ -86,5 +94,21 @@ package API.yandexWeather;
                 break;
         }
         return part;
+    }
+
+
+    /**
+     * Метод переводит дату из HTTP ответа в удобный вид
+     *
+     * @param badDate полученное время от HTTP ответа в UTC
+     * @return дата в удобном виде
+     */
+    String converterDate(String badDate) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime date = LocalDateTime.parse(badDate, dateTimeFormatter).plusHours(3L);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm, EEEE dd MMMM");
+        String goodDate = date.format(formatter);
+
+        return goodDate;
     }
 }

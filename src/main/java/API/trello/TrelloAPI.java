@@ -1,4 +1,4 @@
-package API;
+package API.trello;
 
 import parsers.Parser;
 import org.apache.commons.httpclient.HttpClient;

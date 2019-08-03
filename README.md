@@ -15,7 +15,7 @@ Paste in CLI link
 
 ##### Example for CourseHunters
 
-```https://coursehunters.net/course/spring-i-hibernate-dlya-novichkov```
+```https://parsers.coursehunters.net/course/spring-i-hibernate-dlya-novichkov```
 
 #### Run
 ![Process](https://i.ibb.co/3WPvYC2/2019-06-30-21-12-37.png)

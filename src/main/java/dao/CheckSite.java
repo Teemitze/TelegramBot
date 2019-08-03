@@ -1,10 +1,11 @@
 package dao;
 
-import coursehunters.CourseHunters;
+import parsers.CourseHunters;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import youtube.YouTubeAPI;
+import parsers.Parser;
+import API.youtube.YouTubeAPI;
 
 public class CheckSite {
     private final Logger logger = LoggerFactory.getLogger(CheckSite.class);

@@ -1,6 +1,5 @@
-package coursehunters;
+package parsers;
 
-import dao.Parser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
