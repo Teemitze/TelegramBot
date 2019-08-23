@@ -47,7 +47,7 @@ public class CourseHunters implements Parser {
         Elements content = doc.getElementsByClass("lessons-name");
         if (!content.isEmpty()) {
             for (Element element : content) {
-                result.add(element.text());
+                result.add((content.indexOf(element) + 1) + ") " + element.text());
                 logger.info((content.indexOf(element) + 1) + ") " + element.text());
             }
         } else {

@@ -52,7 +52,7 @@ public class YouTubeAPI extends YouTube {
             for (Object s : items) {
                 JSONObject jsonObject = (JSONObject) s;
                 String element = jsonObject.getJSONObject("snippet").getString("title");
-                list.add(element);
+                list.add((list.indexOf(element) + 1) + ") " + element);
                 logger.info((list.indexOf(element) + 1) + ") " + element);
             }
             try {
