@@ -114,7 +114,7 @@ public class TrelloAPI {
         String idCard = trelloAPI.AddCard(title, parser.getSite());
         String idCheckList = trelloAPI.AddCheckList(idCard);
         for (String s: content) {
-            if (content.indexOf(s) == 200) {
+            if (content.indexOf(s) % 200 == 0) {
                 idCheckList = trelloAPI.AddCheckList(idCard);
             }
             trelloAPI.AddCheckBox(idCheckList, s);

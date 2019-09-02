@@ -44,7 +44,7 @@ public class YouTubeAPI extends YouTube {
         ArrayList<String> list = new ArrayList<>();
 
         logger.info("Title: {}", youTubeAPI.parsingTitle());
-
+        int i = 1;
         while (true) {
             JSONObject pageJson = new JSONObject(youTubeAPI.api_Get(nextPageToken));
             JSONArray items = pageJson.getJSONArray("items");
@@ -52,8 +52,9 @@ public class YouTubeAPI extends YouTube {
             for (Object s : items) {
                 JSONObject jsonObject = (JSONObject) s;
                 String element = jsonObject.getJSONObject("snippet").getString("title");
-                list.add((list.indexOf(element) + 1) + ") " + element);
-                logger.info((list.indexOf(element) + 1) + ") " + element);
+                list.add(i + ") " + element);
+                logger.info(i + ") " + element);
+                i++;
             }
             try {
                 nextPageToken = pageJson.getString("nextPageToken");
