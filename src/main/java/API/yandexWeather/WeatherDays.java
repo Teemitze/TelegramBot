@@ -13,11 +13,9 @@ public class WeatherDays {
     public String nowWeather() {
         String today = new Converter().converterDate(allWeather.getString("now_dt")); // Сегодняшняя дата
         int temperature = allWeather.getJSONObject("fact").getInt("temp"); // Температура в (°C)
-        int temperatureLike = allWeather.getJSONObject("fact").getInt("feels_like"); // Ощущаемая температура в (°C)
         String condition = new Converter().translateWeatherCondition(allWeather.getJSONObject("fact").getString("condition")); // Погодное описание
         int wind_speed = allWeather.getJSONObject("fact").getInt("wind_speed"); // Скорость ветра (в м/с)
         int humidity = allWeather.getJSONObject("fact").getInt("humidity"); // Влажность воздуха (в %)
-        //String icon = jsonObject.getJSONObject("fact").getString("icon"); // Код иконки погоды. Иконка доступна по адресу https://yastatic.net/weather/i/icons/blueye/color/svg/<значение из поля icon>.svg.
 
         StringBuilder result = new StringBuilder();
         result.append("Сейчас " + today + "\n")
@@ -55,7 +53,6 @@ public class WeatherDays {
         JSONObject morning = tomorrow.getJSONObject("parts").getJSONObject(part);
         int morningTemp = morning.getInt("temp_avg"); // Температура
         int morningTempLike = morning.getInt("feels_like"); // Ощущается
-        // String icon = morning.getString("icon"); // Код иконки погоды. Иконка доступна по адресу https://yastatic.net/weather/i/icons/blueye/color/svg/<значение из поля icon>.svg.
         String condition = morning.getString("condition"); // Код расшифровки погодного описания. Возможные значения:
         int wind_speed = morning.getInt("wind_speed"); // Скорость ветра (в м/с).
         int humidity = morning.getInt("humidity"); // Влажность воздуха (в процентах).

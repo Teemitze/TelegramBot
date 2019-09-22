@@ -1,8 +1,7 @@
 package API.youtube;
 
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.methods.*;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,18 +9,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import parsers.YouTube;
 
+import java.io.IOException;
+import java.io.FileInputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Properties;
+
+import static API.HttpBuilder.youTubeBuilder;
 
 public class YouTubeAPI extends YouTube {
 
     private final Logger logger = LoggerFactory.getLogger(YouTubeAPI.class);
 
-    private static final String YOU_TUBE_API = "https://www.googleapis.com/youtube/v3/playlistItems";
-    private static final String PART = "snippet";
-    private static final String KEY_API = "AIzaSyBDidy7us2sm7r8ewMJKzVJ2MuMS-aSMI4";
-    private static final String FIELDS = "pageInfo,nextPageToken,items(snippet(title))";
-    private static final String MAX_RESULTS = "50";
+    public static final String YOU_TUBE_API = "https://www.googleapis.com/youtube/v3/playlistItems";
+    public static final String PART = "snippet";
+    public static String KEY_API;
+    public static final String FIELDS = "pageInfo,nextPageToken,items(snippet(title))";
+    public static final String MAX_RESULTS = "50";
 
     private String site;
 
@@ -33,6 +37,14 @@ public class YouTubeAPI extends YouTube {
     public YouTubeAPI(String site) {
         super(site);
         this.site = site;
+        try {
+            Properties property = new Properties();
+            FileInputStream fis = new FileInputStream("src/main/resources/config.properties");
+            property.load(fis);
+            KEY_API = property.getProperty("youtube.key");
+        } catch (Exception e) {
+            logger.error("ОШИБКА: Файл свойств отсуствует!");
+        }
     }
 
     @Override
@@ -67,33 +79,16 @@ public class YouTubeAPI extends YouTube {
 
 
     public String api_Get(String pageToken) {
-        String playlistId = site.trim().substring(38);
-        HttpClient client = new HttpClient();
         String result = null;
-
-        URIBuilder builder = null;
         try {
-            builder = new URIBuilder(YOU_TUBE_API);
-            builder.addParameter("part", PART);
-            builder.addParameter("playlistId", playlistId);
-            builder.addParameter("key", KEY_API);
-            builder.addParameter("fields", FIELDS);
-            builder.addParameter("maxResults", MAX_RESULTS);
-            builder.addParameter("pageToken", pageToken);
-        } catch (URISyntaxException e) {
-            logger.error("Could not get the result using YouTube API");
-            e.printStackTrace();
-        }
-
-        GetMethod method = new GetMethod(builder.toString());
-
-        try {
+            String playlistId = site.trim().substring(38);
+            HttpClient client = new HttpClient();
+            GetMethod method = new GetMethod(youTubeBuilder(new YouTubeFillParameters().fillParametersForYouTubePlaylist(playlistId, pageToken)));
             client.executeMethod(method);
             result = new String(method.getResponseBody());
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
         return result;
     }
 }

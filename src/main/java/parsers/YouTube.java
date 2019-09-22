@@ -30,6 +30,9 @@ public class YouTube implements Parser {
         }
     }
 
+    public YouTube() {
+    }
+
     @Override
     public String parsingTitle() {
         return doc.getElementsByTag("h1").toggleClass("yt-simple-endpoint style-scope yt-formatted-string").text();

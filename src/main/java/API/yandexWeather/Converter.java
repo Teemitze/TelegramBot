@@ -8,12 +8,6 @@ import java.time.format.DateTimeFormatter;
  */
 class Converter {
 
-    /**
-     * Метод переводит значение condition из HTTP ответа на русский
-     *
-     * @param condition погодное описание на английском
-     * @return погодное описание на русском
-     */
     String translateWeatherCondition(String condition) {
         switch (condition) {
             case ("clear"):
@@ -71,16 +65,9 @@ class Converter {
                 condition = "снег";
                 break;
         }
-
         return condition;
     }
 
-    /**
-     * Метод переводит одно из значений parts из HTTP ответа на русский
-     *
-     * @param part часть суток на английском
-     * @return часть суток на русском
-     */
     String translatePartsDay(String part) {
         switch (part) {
             case "morning":
@@ -95,7 +82,6 @@ class Converter {
         }
         return part;
     }
-
 
     /**
      * Метод переводит дату из HTTP ответа в удобный вид
