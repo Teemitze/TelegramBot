@@ -143,8 +143,8 @@ public class AnnaBot extends TelegramLongPollingBot {
                         new RecipeRepository().addRecipe(update.getMessage().getText().substring(5), new ArrayList<>());
                         message = new SendMessage()
                                 .setChatId(update.getMessage().getChatId())
-                                .setText("Блюдо " + update.getMessage().getText().substring(4) + " было добавлено!");
-                    } else if (update.getMessage().getText().matches("/del(\\s)[0-9]")) {
+                                .setText("Блюдо " + update.getMessage().getText().substring(5) + " было добавлено!");
+                    } else if (update.getMessage().getText().matches("/del(\\s)\\d+$")) {
                         new RecipeRepository().deleteRecipe(Integer.parseInt(update.getMessage().getText().substring(5)));
                         message = new SendMessage()
                                 .setChatId(update.getMessage().getChatId())

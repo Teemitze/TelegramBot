@@ -7,7 +7,7 @@ import javax.persistence.*;
 public class Ingredient {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     int id;
     int amount;
     @ManyToOne

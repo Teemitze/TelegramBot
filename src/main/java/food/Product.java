@@ -7,7 +7,7 @@ import java.util.List;
 @Table(name = "products")
 public class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     int id;
     String name;
     @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)

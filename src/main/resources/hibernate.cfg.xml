@@ -7,13 +7,13 @@
     <session-factory>
 
 
-        <property name="hibernate.connection.url">jdbc:mysql://us-cdbr-iron-east-02.cleardb.net:3306/heroku_a1a2c122cd3c173?serverTimezone=UTC</property>
+        <property name="hibernate.connection.url">jdbc:mysql://us-cdbr-iron-east-02.cleardb.net:3306/heroku_a1a2c122cd3c173?serverTimezone=UTC&amp;useUnicode=true&amp;characterEncoding=UTF-8</property>
         <property name="hibernate.connection.username">be2ab6961c6edc</property>
         <property name="hibernate.connection.password">56ad89b4</property>
 
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL57Dialect</property>
         <property name="show_sql">true</property>
-
+        <property name="hibernate.hbm2ddl.auto">create</property>
         <property name="hibernate.current_session_context_class">thread</property>
         <mapping class="food.Recipe"/>
         <mapping class="food.Product"/>
