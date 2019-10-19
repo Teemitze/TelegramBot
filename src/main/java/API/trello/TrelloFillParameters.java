@@ -1,10 +1,17 @@
 package API.trello;
 
+import API.ServiceAPI;
+
 import java.util.HashMap;
 
-import static API.trello.TrelloAPI.*;
-
 class TrelloFillParameters {
+
+    ServiceAPI trelloAPI = new TrelloAPI();
+
+    private String KEY_API = trelloAPI.loadProperty().getProperty("trello.key");
+    private String TOKEN = trelloAPI.loadProperty().getProperty("trello.token");
+    private String ID_LIST = trelloAPI.loadProperty().getProperty("trello.idList");
+
     HashMap<String, String> fillParametersForAddCard(String name, String desc) {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("name", name);

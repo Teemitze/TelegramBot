@@ -1,29 +1,21 @@
 package API.yandexWeather;
 
+import API.ServiceAPI;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
 
 import static API.HttpBuilder.yandexWeatherBuilder;
 
-public class YandexWeatherAPI {
+public class YandexWeatherAPI implements ServiceAPI {
     private String KEY_API;
 
     YandexWeatherAPI() {
-        try {
-            Properties property = new Properties();
-            FileInputStream fis = new FileInputStream("src/main/resources/config.properties");
-            property.load(fis);
-            KEY_API = property.getProperty("yandexWeather.key");
-        } catch (Exception e) {
-            logger.error("ОШИБКА: Файл свойств отсуствует!");
-        }
+        KEY_API = loadProperty().getProperty("yandexWeather.key");
     }
 
     private final Logger logger = LoggerFactory.getLogger(YandexWeatherAPI.class);

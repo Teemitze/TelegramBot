@@ -1,1 +1,0 @@
-worker: sh target/bin/teemitze-anna-bot

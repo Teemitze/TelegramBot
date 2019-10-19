@@ -12,7 +12,7 @@ public class Main {
         try {
             botsApi.registerBot(new AnnaBot());
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

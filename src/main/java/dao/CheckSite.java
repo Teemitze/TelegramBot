@@ -18,7 +18,7 @@ public class CheckSite {
 
         Parser result = null;
 
-        if ((site.matches(".*\\byoutube\\b.*"))) {
+        if (site.matches(".*\\byoutube\\b.*")) {
             result = new YouTubeAPI(site);
         } else if (site.matches(".*\\bcoursehunter\\b.*")) {
             result = new CourseHunters(site);

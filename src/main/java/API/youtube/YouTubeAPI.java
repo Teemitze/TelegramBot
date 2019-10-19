@@ -1,5 +1,6 @@
 package API.youtube;
 
+import API.ServiceAPI;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONArray;
@@ -10,14 +11,11 @@ import org.slf4j.LoggerFactory;
 import parsers.YouTube;
 
 import java.io.IOException;
-import java.io.FileInputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Properties;
 
 import static API.HttpBuilder.youTubeBuilder;
 
-public class YouTubeAPI extends YouTube {
+public class YouTubeAPI extends YouTube implements ServiceAPI {
 
     private final Logger logger = LoggerFactory.getLogger(YouTubeAPI.class);
 
@@ -37,14 +35,7 @@ public class YouTubeAPI extends YouTube {
     public YouTubeAPI(String site) {
         super(site);
         this.site = site;
-        try {
-            Properties property = new Properties();
-            FileInputStream fis = new FileInputStream("src/main/resources/config.properties");
-            property.load(fis);
-            KEY_API = property.getProperty("youtube.key");
-        } catch (Exception e) {
-            logger.error("ОШИБКА: Файл свойств отсуствует!");
-        }
+        KEY_API = loadProperty().getProperty("youtube.key");
     }
 
     @Override
