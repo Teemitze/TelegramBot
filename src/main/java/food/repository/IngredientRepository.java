@@ -2,23 +2,19 @@ package food.repository;
 
 import dataBase.ConnectionDB;
 import food.Ingredient;
-import food.Product;
-import food.Recipe;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 public class IngredientRepository {
     private SessionFactory sessionFactory = ConnectionDB.getSessionFactory();
 
-    public void addIngredient(int amount, Recipe recipe, Product product) {
-        Ingredient ingredient = new Ingredient(amount, recipe, product);
+    public void addIngredient(Ingredient ingredient) {
         Session session = sessionFactory.openSession();
         session.save(ingredient);
         session.close();
     }
 
-    public void updateIngredient(int amount, Recipe recipe, Product product) {
-        Ingredient ingredient = new Ingredient(amount, recipe, product);
+    public void updateIngredient(Ingredient ingredient) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         session.update(ingredient);

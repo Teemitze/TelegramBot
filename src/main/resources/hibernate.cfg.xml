@@ -13,7 +13,6 @@
         <property name="hibernate.current_session_context_class">thread</property>
 
         <mapping class="food.Recipe"/>
-        <mapping class="food.Product"/>
         <mapping class="food.Ingredient"/>
     </session-factory>
 </hibernate-configuration>

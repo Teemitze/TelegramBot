@@ -12,8 +12,7 @@ import java.util.Random;
 public class RecipeRepository {
     private SessionFactory sessionFactory = ConnectionDB.getSessionFactory();
 
-    public void addRecipe(String name, List<Ingredient> ingredients) {
-        Recipe recipe = new Recipe(name, ingredients);
+    public void addRecipe(Recipe recipe) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         session.save(recipe);
@@ -59,6 +58,13 @@ public class RecipeRepository {
     public Recipe findRecipeName(String name) {
         Session session = sessionFactory.openSession();
         Recipe recipe = session.createQuery("from Recipe where name=:name", Recipe.class).setParameter("name", name).uniqueResult();
+        session.close();
+        return recipe;
+    }
+
+    public Recipe findRecipeByID(int id){
+        Session session = sessionFactory.openSession();
+        Recipe recipe = session.createQuery("from Recipe where id=:id", Recipe.class).setParameter("id", id).uniqueResult();
         session.close();
         return recipe;
     }

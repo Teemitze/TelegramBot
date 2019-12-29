@@ -14,7 +14,7 @@ public class Recipe {
     int id;
     @Column(name = "name")
     String nameRecipe;
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "recipe", cascade = CascadeType.ALL)
     List<Ingredient> Ingredients;
 
     public Recipe(String nameRecipe, List<Ingredient> ingredients) {
@@ -28,5 +28,21 @@ public class Recipe {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setNameRecipe(String nameRecipe) {
+        this.nameRecipe = nameRecipe;
+    }
+
+    public List<Ingredient> getIngredients() {
+        return Ingredients;
+    }
+
+    public void setIngredients(List<Ingredient> ingredients) {
+        Ingredients = ingredients;
     }
 }

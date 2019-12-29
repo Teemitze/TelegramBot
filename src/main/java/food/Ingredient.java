@@ -2,24 +2,50 @@ package food;
 
 import javax.persistence.*;
 
-@Table(name = "ingredients")
 @Entity
+@Table(name = "ingredients")
 public class Ingredient {
+    public Ingredient() {
+    }
 
     @Id
-    @GeneratedValue
-    int id;
-    int amount;
-    @ManyToOne
-    @JoinColumn(name = "recipe_id")
-    Recipe recipe;
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    Product product;
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    int ingredientId;
 
-    public Ingredient(int amount, Recipe recipe, Product product) {
-        this.amount = amount;
+    @Column(name = "name")
+    String nameIngredient;
+
+    public Ingredient(String nameIngredient, Recipe recipe) {
+        this.nameIngredient = nameIngredient;
         this.recipe = recipe;
-        this.product = product;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "recipe_id", nullable = false)
+    Recipe recipe;
+
+    public int getIngredientId() {
+        return ingredientId;
+    }
+
+    public void setIngredientId(int ingredientId) {
+        this.ingredientId = ingredientId;
+    }
+
+    public String getNameIngredient() {
+        return nameIngredient;
+    }
+
+    public void setNameIngredient(String nameIngredient) {
+        this.nameIngredient = nameIngredient;
+    }
+
+    public Recipe getRecipe() {
+        return recipe;
+    }
+
+    public void setRecipe(Recipe recipe) {
+        this.recipe = recipe;
     }
 }

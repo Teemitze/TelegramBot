@@ -22,6 +22,16 @@ public class TrelloAPI implements ServiceAPI {
     public static final String TRELLO_API = "https://api.trello.com/1/";
     static final String TRELLO_CHECKLISTS = "checklists";
 
+    public static String KEY_API;
+    public static String TOKEN;
+    public static String ID_LIST;
+
+    public TrelloAPI() {
+        KEY_API = loadProperty().getProperty("trello.key");
+        TOKEN = loadProperty().getProperty("trello.token");
+        ID_LIST = loadProperty().getProperty("trello.idList");
+    }
+
     private HttpClient client = new HttpClient();
     private TrelloFillParameters trelloFillParameters = new TrelloFillParameters();
 
