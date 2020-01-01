@@ -218,16 +218,22 @@ public class AnnaBot extends TelegramLongPollingBot {
         final String RECIPE = "Рецепт ";
         String userMessage = update.getMessage().getText();
         SendMessage message = null;
-
+        String result = "";
         if (userMessage.matches("/add(\\s)[а-яА-Я(\\s)]+")) {
-            int newLine = userMessage.indexOf("\n");
-            List<Ingredient> ingredients = new ArrayList<>();
             Recipe recipe = new Recipe();
-            recipe.setNameRecipe(userMessage.substring(5, newLine));
-            userMessage.lines().skip(1).map(um -> new Ingredient(um, recipe)).forEach(ingredients::add);
-            recipe.setIngredients(ingredients);
+            if (userMessage.contains("\n")) {
+                int newLine = userMessage.indexOf("\n");
+                List<Ingredient> ingredients = new ArrayList<>();
+                recipe.setNameRecipe(userMessage.substring(5, newLine));
+                userMessage.lines().skip(1).map(um -> new Ingredient(um, recipe)).forEach(ingredients::add);
+                recipe.setIngredients(ingredients);
+                result = RECIPE + userMessage.substring(5, newLine) + " был добавлен!";
+            } else {
+                recipe.setNameRecipe(userMessage.substring(5));
+                result = RECIPE + userMessage.substring(5) + " был добавлен!";
+            }
             new RecipeRepository().addRecipe(recipe);
-            message = newSendMessage(update, RECIPE + userMessage.substring(5, newLine) + " был добавлен!");
+            message = newSendMessage(update, result);
         } else if (userMessage.matches("/del(\\s)\\d+$")) {
             RecipeRepository recipeRepository = new RecipeRepository();
             Recipe recipe = recipeRepository.findRecipeByID(Integer.parseInt(userMessage.substring(5)));
