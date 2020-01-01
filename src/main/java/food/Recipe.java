@@ -5,7 +5,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "recipes")
-public class Recipe {
+public class Recipe implements Comparable<Recipe> {
     public Recipe() {
     }
 
@@ -44,5 +44,14 @@ public class Recipe {
 
     public void setIngredients(List<Ingredient> ingredients) {
         Ingredients = ingredients;
+    }
+
+    @Override
+    public int compareTo(Recipe recipe) {
+        if (this.getId() > recipe.getId()) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
 }

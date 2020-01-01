@@ -20,9 +20,7 @@ import parsers.Parser;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class AnnaBot extends TelegramLongPollingBot {
     private final Logger logger = LoggerFactory.getLogger(AnnaBot.class);
@@ -178,7 +176,7 @@ public class AnnaBot extends TelegramLongPollingBot {
 
 
     public String allRecipes() {
-        List<Recipe> recipes = new RecipeRepository().getAllRecipes();
+        Set<Recipe> recipes = new TreeSet<>(new RecipeRepository().getAllRecipes());
 
         String recipeName = "";
         for (Recipe recipe : recipes) {
