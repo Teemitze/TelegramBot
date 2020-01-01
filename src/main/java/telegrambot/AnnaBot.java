@@ -129,7 +129,7 @@ public class AnnaBot extends TelegramLongPollingBot {
         return sendMessage;
     }
 
-    public SendMessage startAndHelp (Update update) {
+    public SendMessage startAndHelp(Update update) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(update.getMessage().getChatId()).setText(infoBot);
         setButtons(sendMessage);
@@ -188,16 +188,31 @@ public class AnnaBot extends TelegramLongPollingBot {
     }
 
 
-    public String getIngridients(){
+    public String getIngridients() {
         String result = "";
+        if (recipes.isEmpty()) {
+            RecipeRepository recipeRepository = new RecipeRepository();
+            recipes = recipeRepository.getAllRecipes();
+        }
         for (Recipe recipe : recipes) {
             result += recipes.indexOf(recipe) + 1 + ") " + recipe.getNameRecipe() + ":\n";
-            for (Ingredient ingredient: recipe.getIngredients()) {
+            for (Ingredient ingredient : recipe.getIngredients()) {
                 result += "\uD83D\uDD38" + ingredient.getNameIngredient() + "\n";
             }
             result += "\n";
         }
         recipes.clear();
+
+        return result;
+    }
+
+    public String getIngridientsById(int id) {
+        RecipeRepository recipeRepository = new RecipeRepository();
+        Recipe recipe = recipeRepository.findRecipeByID(id);
+        String result = "Рецепт " + recipe.getNameRecipe() + " состоит из:\n";
+        for (Ingredient ingredient : recipe.getIngredients()) {
+            result += "\uD83D\uDD38" + ingredient.getNameIngredient() + "\n";
+        }
         return result;
     }
 
@@ -224,6 +239,8 @@ public class AnnaBot extends TelegramLongPollingBot {
             } else {
                 message = newSendMessage(update, "Такого рецепта нет в базе!");
             }
+        } else if (userMessage.matches("/rec(\\s)\\d+$")) {
+            message = newSendMessage(update, getIngridientsById(Integer.parseInt(userMessage.substring(5))));
         } else if (userMessage.contains("http")) {
             String site = userMessage;
             CheckSite checkSite = new CheckSite(site);
