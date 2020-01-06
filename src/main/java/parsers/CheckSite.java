@@ -1,10 +1,8 @@
-package dao;
+package parsers;
 
-import API.youtube.YouTubeAPI;
+import API.youtube.YouTubeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import parsers.CourseHunters;
-import parsers.Parser;
 
 public class CheckSite {
     private final Logger logger = LoggerFactory.getLogger(CheckSite.class);
@@ -19,7 +17,7 @@ public class CheckSite {
         Parser result = null;
 
         if (site.matches(".*\\byoutube\\b.*")) {
-            result = new YouTubeAPI(site);
+            result = new YouTubeHelper(site);
         } else if (site.matches(".*\\bcoursehunter\\b.*")) {
             result = new CourseHunters(site);
         } else {

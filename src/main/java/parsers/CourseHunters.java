@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 
 public class CourseHunters implements Parser {
-    private final Logger logger = LoggerFactory.getLogger(CourseHunters.class);
+    private static final Logger logger = LoggerFactory.getLogger(CourseHunters.class);
 
     private String site;
     private Document doc;
@@ -32,13 +32,7 @@ public class CourseHunters implements Parser {
 
     @Override
     public String parsingTitle() {
-        String title = doc.getElementsByClass("hero-title").text();
-        if (title != null) {
-            logger.info("Title: {}", title);
-        } else {
-            logger.error("Title is empty!");
-        }
-        return title;
+        return doc.getElementsByClass("hero-title").text();
     }
 
     @Override
@@ -47,8 +41,7 @@ public class CourseHunters implements Parser {
         Elements content = doc.getElementsByClass("lessons-name");
         if (!content.isEmpty()) {
             for (Element element : content) {
-                result.add((content.indexOf(element) + 1) + ") " + element.text());
-                logger.info((content.indexOf(element) + 1) + ") " + element.text());
+                result.add(element.text());
             }
         } else {
             logger.error("Content is empty!");

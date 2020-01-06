@@ -25,5 +25,3 @@ Paste in CLI link
 
 ### Dev
 ```mvn install```
-##### Deploy
-```mvn clean compile assembly:single```

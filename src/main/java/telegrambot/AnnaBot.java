@@ -1,7 +1,6 @@
 package telegrambot;
 
-import API.trello.TrelloAPI;
-import dao.CheckSite;
+import API.trello.TrelloHelper;
 import food.Ingredient;
 import food.Recipe;
 import food.repository.RecipeRepository;
@@ -15,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import parsers.CheckSite;
 import parsers.Parser;
 
 import java.io.FileInputStream;
@@ -167,7 +167,6 @@ public class AnnaBot extends TelegramLongPollingBot {
         }
     }
 
-
     public String allRecipes() {
         Set<Recipe> recipes = new TreeSet<>(new RecipeRepository().getAllRecipes());
 
@@ -177,7 +176,6 @@ public class AnnaBot extends TelegramLongPollingBot {
         }
         return recipeName;
     }
-
 
     public String getIngridients() {
         String result = "";
@@ -246,8 +244,8 @@ public class AnnaBot extends TelegramLongPollingBot {
 
             message = newSendMessage(update, "Я добавила карточку " + "\"" + title + "\"" + " в ваш список Trello Bot!");
 
-            TrelloAPI trelloAPI = new TrelloAPI();
-            trelloAPI.trelloFillColumn(object);
+            TrelloHelper trelloHelper = new TrelloHelper();
+            trelloHelper.trelloFillCard(object);
         }
         return message;
     }

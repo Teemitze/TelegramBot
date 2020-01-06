@@ -7,10 +7,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public interface ServiceAPI {
-    Logger logger = LoggerFactory.getLogger(ServiceAPI.class);
+public interface ConfigureAPI {
+    Logger logger = LoggerFactory.getLogger(ConfigureAPI.class);
 
-    default Properties loadProperty() {
+    String TRELLO_KEY_API = loadProperty().getProperty("trello.key");
+    String TRELLO_TOKEN = loadProperty().getProperty("trello.token");
+    String TRELLO_ID_LIST = loadProperty().getProperty("trello.idList");
+
+    String YOUTUBE_KEY_API = loadProperty().getProperty("youtube.key");
+
+
+    static Properties loadProperty() {
         Properties property = new Properties();
         try (FileInputStream fis = new FileInputStream("./config.properties")) {
             property.load(fis);
