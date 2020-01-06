@@ -1,7 +1,6 @@
 package telegrambot;
 
 import API.trello.TrelloAPI;
-import API.yandexWeather.WeatherDays;
 import dao.CheckSite;
 import food.Ingredient;
 import food.Recipe;
@@ -33,8 +32,6 @@ public class AnnaBot extends TelegramLongPollingBot {
     public final String ADD_RECIPE = "Добавить рецепт";
     public final String DELETE_RECIPE = "Удалить рецепт";
     public final String SHOW_RECIPES = "Показать все рецепты";
-    public final String WEATHER_NOW = "Какая сейчас погода?";
-    public final String WEATHER_TOMORROW = "Какая завтра погода?";
     public final String SHOW_INGREDIENTS = "Показать все ингредиенты";
 
     public final String INSTRUCTION_ADD_RECIPE = "Чтобы добавить рецепт напишите команду /add [Название рецепта]";
@@ -102,9 +99,7 @@ public class AnnaBot extends TelegramLongPollingBot {
                 ADD_RECIPE,
                 DELETE_RECIPE,
                 SHOW_RECIPES,
-                SHOW_INGREDIENTS
-                /*, WEATHER_NOW,
-                WEATHER_TOMORROW*/);
+                SHOW_INGREDIENTS);
 
         replyKeyboardMarkup.setKeyboard(keyboard);
     }
@@ -161,8 +156,6 @@ public class AnnaBot extends TelegramLongPollingBot {
                 case SHOW_RECIPES -> message = newSendMessage(update, allRecipes());
                 case ADD_RECIPE -> message = newSendMessage(update, INSTRUCTION_ADD_RECIPE);
                 case DELETE_RECIPE -> message = newSendMessage(update, INSTRUCTION_DELETE_RECIPE);
-                case WEATHER_NOW -> message = newSendMessage(update, new WeatherDays().nowWeather());
-                case WEATHER_TOMORROW -> message = newSendMessage(update, new WeatherDays().tomorrowWeather());
                 case SHOW_INGREDIENTS -> message = newSendMessage(update, getIngridients());
                 default -> message = method(update);
             }
