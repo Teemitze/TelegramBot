@@ -1,9 +1,8 @@
 package API.trello;
 
-import API.ConfigureAPI;
 import API.trello.dto.TrelloCheckList;
 
-public interface TrelloAPI extends ConfigureAPI {
+public interface TrelloAPI {
 
     void addCard();
 

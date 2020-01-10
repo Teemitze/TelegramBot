@@ -2,6 +2,7 @@ package API.trello;
 
 import API.trello.dto.TrelloCard;
 import API.trello.dto.TrelloCheckList;
+import configuration.Config;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -22,7 +23,8 @@ public class TrelloServiceAPI implements TrelloAPI {
     public static final String TRELLO_CHECKBOX = TRELLO_CHECKLISTS + "/%s/checkItems";
 
     private HttpClient client = new HttpClient();
-    private TrelloFillParameters trelloFillParameters = new TrelloFillParameters();
+    Config config = Config.loadConfig();
+    private TrelloFillParameters trelloFillParameters = new TrelloFillParameters(config);
 
     TrelloCard trelloCard;
 

@@ -1,5 +1,6 @@
 package API.youtube;
 
+import configuration.Config;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.slf4j.Logger;
@@ -13,7 +14,9 @@ public class YouTubeServiceAPI implements YouTubeAPI {
 
     private final Logger logger = LoggerFactory.getLogger(YouTubeServiceAPI.class);
 
-    YouTubeFillParameters youTubeFillParameters = new YouTubeFillParameters();
+    Config config = Config.loadConfig();
+
+    YouTubeFillParameters youTubeFillParameters = new YouTubeFillParameters(config);
 
     public String getVideoPlaylist(String playlistId, String pageToken) {
         String result = null;

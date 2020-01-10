@@ -1,8 +1,6 @@
 package API.youtube;
 
-import API.ConfigureAPI;
-
-public interface YouTubeAPI extends ConfigureAPI {
+public interface YouTubeAPI {
     String YOUTUBE_PLAYLIST_API = "https://www.googleapis.com/youtube/v3/playlistItems";
     String YOUTUBE_TITLE_API = "https://www.googleapis.com/youtube/v3/playlists";
     String PART = "snippet";
