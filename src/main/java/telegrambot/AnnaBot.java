@@ -1,7 +1,7 @@
 package telegrambot;
 
 import API.trello.TrelloHelper;
-import food.Ingredient;
+import configuration.Config;
 import food.Recipe;
 import food.repository.RecipeRepository;
 import org.slf4j.Logger;
@@ -9,33 +9,28 @@ import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import parsers.CheckSite;
 import parsers.Parser;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class AnnaBot extends TelegramLongPollingBot {
     private final Logger logger = LoggerFactory.getLogger(AnnaBot.class);
 
     List<Recipe> recipes = new ArrayList<>();
 
-    public final String HELP = "/help";
-    public final String START = "/start";
-    public final String WHAT_COOK = "Что приготовить?";
-    public final String ADD_RECIPE = "Добавить рецепт";
-    public final String DELETE_RECIPE = "Удалить рецепт";
-    public final String SHOW_RECIPES = "Показать все рецепты";
-    public final String SHOW_INGREDIENTS = "Показать все ингредиенты";
-
+    private final Config config = Config.loadConfig();
+    private final String BOT_NAME = config.telegramBotName;
+    private final String TOKEN = config.telegramToken;
     public final String INSTRUCTION_ADD_RECIPE = "Чтобы добавить рецепт напишите команду /add [Название рецепта]";
     public final String INSTRUCTION_DELETE_RECIPE = "Чтобы удалить рецепт напишите команду /del [ID рецепта]";
+    private final String point = "\uD83D\uDD38";
 
     final String infoBot =
             "Данный бот может:\n\n" +
@@ -50,21 +45,6 @@ public class AnnaBot extends TelegramLongPollingBot {
                     "❌ Помыть посуду\n\n" +
                     "❌ Сходить в магазин\n\n" +
                     "❌ Убраться в вашем доме";
-
-    private static String BOT_NAME;
-    private static String TOKEN;
-
-    public AnnaBot() {
-        try (FileInputStream fis = new FileInputStream("./config.properties")) {
-            Properties property = new Properties();
-            property.load(fis);
-            TOKEN = property.getProperty("telegram.token");
-            BOT_NAME = property.getProperty("telegram.botName");
-        } catch (IOException e) {
-            logger.error("ОШИБКА: Файл свойств отсуствует!", e);
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public String getBotUsername() {
@@ -95,25 +75,12 @@ public class AnnaBot extends TelegramLongPollingBot {
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
 
         List<KeyboardRow> keyboard = createButtons(
-                WHAT_COOK,
-                ADD_RECIPE,
-                DELETE_RECIPE,
-                SHOW_RECIPES,
-                SHOW_INGREDIENTS);
+                Menu.ADD_RECIPE,
+                Menu.DELETE_RECIPE,
+                Menu.SHOW_RECIPES,
+                Menu.SHOW_INGREDIENTS);
 
         replyKeyboardMarkup.setKeyboard(keyboard);
-    }
-
-
-    private InlineKeyboardMarkup setInline() {
-        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
-        List<InlineKeyboardButton> buttons1 = new ArrayList<>();
-        buttons1.add(new InlineKeyboardButton().setText("Добавить").setCallbackData("1"));
-        buttons.add(buttons1);
-
-        InlineKeyboardMarkup markupKeyboard = new InlineKeyboardMarkup();
-        markupKeyboard.setKeyboard(buttons);
-        return markupKeyboard;
     }
 
     public SendMessage newSendMessage(Update update, String message) {
@@ -126,15 +93,6 @@ public class AnnaBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(update.getMessage().getChatId()).setText(infoBot);
         setButtons(sendMessage);
-        return sendMessage;
-    }
-
-    public SendMessage getOneRecipe(Update update) {
-        String recipeName = new RecipeRepository().getOneRecipe().getNameRecipe();
-
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(update.getMessage().getChatId()).setText(recipeName);
-        sendMessage.setReplyMarkup(setInline());
         return sendMessage;
     }
 
@@ -151,12 +109,11 @@ public class AnnaBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             SendMessage message;
             switch (update.getMessage().getText()) {
-                case HELP, START -> message = startAndHelp(update);
-                case WHAT_COOK -> message = getOneRecipe(update);
-                case SHOW_RECIPES -> message = newSendMessage(update, allRecipes());
-                case ADD_RECIPE -> message = newSendMessage(update, INSTRUCTION_ADD_RECIPE);
-                case DELETE_RECIPE -> message = newSendMessage(update, INSTRUCTION_DELETE_RECIPE);
-                case SHOW_INGREDIENTS -> message = newSendMessage(update, getIngridients());
+                case Menu.HELP, Menu.START -> message = startAndHelp(update);
+                case Menu.SHOW_RECIPES -> message = newSendMessage(update, allRecipes());
+                case Menu.ADD_RECIPE -> message = newSendMessage(update, INSTRUCTION_ADD_RECIPE);
+                case Menu.DELETE_RECIPE -> message = newSendMessage(update, INSTRUCTION_DELETE_RECIPE);
+                case Menu.SHOW_INGREDIENTS -> message = newSendMessage(update, getIngredients());
                 default -> message = method(update);
             }
             try {
@@ -168,41 +125,44 @@ public class AnnaBot extends TelegramLongPollingBot {
     }
 
     public String allRecipes() {
-        Set<Recipe> recipes = new TreeSet<>(new RecipeRepository().getAllRecipes());
+        Set<Recipe> recipes = new TreeSet(new RecipeRepository().getAllRecipes());
 
-        String recipeName = "";
+        StringBuilder recipeName = new StringBuilder();
         for (Recipe recipe : recipes) {
-            recipeName += (recipe.getId()) + ") " + recipe.getNameRecipe() + "\n";
+            recipeName.append(recipe.getId()).append(") ").append(recipe.getNameRecipe()).append("\n");
         }
-        return recipeName;
+        return recipeName.toString();
     }
 
-    public String getIngridients() {
-        String result = "";
+    public String getIngredients() {
+        StringBuilder stringBuilder = new StringBuilder();
         if (recipes.isEmpty()) {
             RecipeRepository recipeRepository = new RecipeRepository();
             recipes = recipeRepository.getAllRecipes();
         }
         for (Recipe recipe : recipes) {
-            result += recipes.indexOf(recipe) + 1 + ") " + recipe.getNameRecipe() + ":\n";
-            for (Ingredient ingredient : recipe.getIngredients()) {
-                result += "\uD83D\uDD38" + ingredient.getNameIngredient() + "\n";
+            stringBuilder.append(recipes.indexOf(recipe) + 1)
+                    .append(") ")
+                    .append(recipe.getNameRecipe())
+                    .append(":\n");
+            for (String ingredient : recipe.getIngredients()) {
+                stringBuilder.append(point).append(ingredient).append("\n");
             }
-            result += "\n";
+            stringBuilder.append("\n");
         }
         recipes.clear();
-
-        return result;
+        return stringBuilder.toString();
     }
 
-    public String getIngridientsById(int id) {
+    public String getIngredientsById(int id) {
         RecipeRepository recipeRepository = new RecipeRepository();
         Recipe recipe = recipeRepository.findRecipeByID(id);
-        String result = "Рецепт " + recipe.getNameRecipe() + " состоит из:\n";
-        for (Ingredient ingredient : recipe.getIngredients()) {
-            result += "\uD83D\uDD38" + ingredient.getNameIngredient() + "\n";
+        StringBuilder stringBuilder = new StringBuilder("Рецепт " + recipe.getNameRecipe() + " состоит из:\n");
+
+        for (String ingredient : recipe.getIngredients()) {
+            stringBuilder.append(point).append(ingredient).append("\n");
         }
-        return result;
+        return stringBuilder.toString();
     }
 
     public SendMessage method(Update update) {
@@ -212,18 +172,19 @@ public class AnnaBot extends TelegramLongPollingBot {
         String result = "";
         if (userMessage.matches("/add(\\s)[а-яА-Я(\\s)]+")) {
             Recipe recipe = new Recipe();
+            List<String> ingredients = new ArrayList<>();
             if (userMessage.contains("\n")) {
                 int newLine = userMessage.indexOf("\n");
-                List<Ingredient> ingredients = new ArrayList<>();
                 recipe.setNameRecipe(userMessage.substring(5, newLine));
-                userMessage.lines().skip(1).map(um -> new Ingredient(um, recipe)).forEach(ingredients::add);
+                userMessage.lines().skip(1).forEach(ingredients::add);
                 recipe.setIngredients(ingredients);
                 result = RECIPE + userMessage.substring(5, newLine) + " был добавлен!";
             } else {
                 recipe.setNameRecipe(userMessage.substring(5));
+                recipe.setIngredients(ingredients);
                 result = RECIPE + userMessage.substring(5) + " был добавлен!";
             }
-            new RecipeRepository().addRecipe(recipe);
+            new RecipeRepository().addRecipe(recipe.getNameRecipe(), recipe.getIngredients());
             message = newSendMessage(update, result);
         } else if (userMessage.matches("/del(\\s)\\d+$")) {
             RecipeRepository recipeRepository = new RecipeRepository();
@@ -235,10 +196,9 @@ public class AnnaBot extends TelegramLongPollingBot {
                 message = newSendMessage(update, "Такого рецепта нет в базе!");
             }
         } else if (userMessage.matches("/rec(\\s)\\d+$")) {
-            message = newSendMessage(update, getIngridientsById(Integer.parseInt(userMessage.substring(5))));
+            message = newSendMessage(update, getIngredientsById(Integer.parseInt(userMessage.substring(5))));
         } else if (userMessage.contains("http")) {
-            String site = userMessage;
-            CheckSite checkSite = new CheckSite(site);
+            CheckSite checkSite = new CheckSite(userMessage);
             Parser object = checkSite.distributorSite();
             String title = object.parsingTitle();
 

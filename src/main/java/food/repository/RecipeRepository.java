@@ -1,71 +1,117 @@
 package food.repository;
 
-import dataBase.ConnectionDB;
-import food.Ingredient;
+import dataBase.ConnectionFactory;
 import food.Recipe;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
+import javax.annotation.Nullable;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Set;
 
 public class RecipeRepository {
-    private SessionFactory sessionFactory = ConnectionDB.getSessionFactory();
 
-    public void addRecipe(Recipe recipe) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        session.save(recipe);
-        session.getTransaction().commit();
-        session.close();
-    }
+    private Connection connection = ConnectionFactory.getConnection();
 
-    public void updateRecipe(String name, List<Ingredient> ingredients) {
-        Recipe recipe = new Recipe(name, ingredients);
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        session.update(recipe);
-        session.getTransaction().commit();
-        session.close();
+    public void addRecipe(String recipeName, List<String> ingredients) {
+        try (PreparedStatement psRecipe = connection.prepareStatement("INSERT INTO recipes(name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+             PreparedStatement psIngredients = connection.prepareStatement("INSERT INTO ingredients(name, recipe_id) VALUES (?, ?)")) {
+            psRecipe.setString(1, recipeName);
+            psRecipe.execute();
+
+            ResultSet rsRecipe = psRecipe.getGeneratedKeys();
+
+            if (rsRecipe.next()) {
+                final int recipeID = rsRecipe.getInt(1);
+                for (String ingredient : ingredients) {
+                    psIngredients.setString(1, ingredient);
+                    psIngredients.setInt(2, recipeID);
+                    psIngredients.execute();
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void deleteRecipe(int id) {
-        Session session = sessionFactory.openSession();
-        Recipe recipe = session.createQuery("from Recipe where id=:id", Recipe.class).setParameter("id", id).uniqueResult();
-        session.beginTransaction();
-        session.delete(recipe);
-        session.getTransaction().commit();
-        session.close();
+        try (PreparedStatement psRecipe = connection.prepareStatement("DELETE FROM recipes WHERE id = ?")) {
+            psRecipe.setInt(1, id);
+            psRecipe.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public List getAllRecipes() {
-        Session session = sessionFactory.openSession();
-        List recipes = session.createQuery("from Recipe").getResultList();
-        session.close();
+    public List<Recipe> getAllRecipes() {
+        List<Recipe> recipes = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM recipes")) {
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                final int recipeID = rs.getInt("id");
+                List<String> ingredients = getIngredientsByRecipeId(recipeID);
+
+                Recipe recipe = new Recipe(recipeID, rs.getString("name"), ingredients);
+                recipes.add(recipe);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return recipes;
     }
 
-    public Recipe getOneRecipe() {
-        List<Recipe> recipes = getAllRecipes();
-        // Инициализируем генератор
-        Random rnd = new Random(System.currentTimeMillis());
-        // Получаем случайное число в диапазоне от min до max (включительно)
-        int number = rnd.nextInt(recipes.size());
+    private List<String> getIngredientsByRecipeId(int id) {
+        List<String> ingredients = new ArrayList<>();
 
-        return recipes.get(number);
+        try (PreparedStatement ps = connection.prepareStatement("SELECT name FROM ingredients WHERE recipe_id = ?")) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                ingredients.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return ingredients;
     }
 
+    @Nullable
     public Recipe findRecipeName(String name) {
-        Session session = sessionFactory.openSession();
-        Recipe recipe = session.createQuery("from Recipe where name=:name", Recipe.class).setParameter("name", name).uniqueResult();
-        session.close();
+        Recipe recipe = null;
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM recipes WHERE name = ?")) {
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                List<String> ingredients = getIngredientsByRecipeId(rs.getInt("id"));
+                recipe = new Recipe(rs.getString("name"), ingredients);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return recipe;
     }
 
-    public Recipe findRecipeByID(int id){
-        Session session = sessionFactory.openSession();
-        Recipe recipe = session.createQuery("from Recipe where id=:id", Recipe.class).setParameter("id", id).uniqueResult();
-        session.close();
+    @Nullable
+    public Recipe findRecipeByID(int id) {
+        Recipe recipe = null;
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM recipes WHERE id = ?")) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                List<String> ingredients = getIngredientsByRecipeId(id);
+                recipe = new Recipe(rs.getString("name"), ingredients);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return recipe;
     }
 }

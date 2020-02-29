@@ -1,5 +1,6 @@
 package API.trello.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrelloCard {
@@ -9,7 +10,7 @@ public class TrelloCard {
     public List<TrelloCheckList> checkLists;
 
     public List<TrelloCheckList> getCheckLists() {
-        return checkLists;
+        return checkLists == null ? new ArrayList<>() : checkLists;
     }
 
     public void setCheckLists(List<TrelloCheckList> checkLists) {

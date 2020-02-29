@@ -1,29 +1,24 @@
 package food;
 
-import javax.persistence.*;
 import java.util.List;
 
-@Entity
-@Table(name = "recipes")
 public class Recipe implements Comparable<Recipe> {
+    int id;
+    String nameRecipe;
+    List<String> Ingredients;
+
     public Recipe() {
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
-    @Column(name = "name")
-    String nameRecipe;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "recipe", cascade = CascadeType.ALL)
-    List<Ingredient> Ingredients;
-
-    public Recipe(String nameRecipe, List<Ingredient> ingredients) {
+    public Recipe(String nameRecipe, List<String> ingredients) {
         this.nameRecipe = nameRecipe;
         this.Ingredients = ingredients;
     }
 
-    public String getNameRecipe() {
-        return nameRecipe;
+    public Recipe(int id, String nameRecipe, List<String> ingredients) {
+        this.id = id;
+        this.nameRecipe = nameRecipe;
+        this.Ingredients = ingredients;
     }
 
     public int getId() {
@@ -34,15 +29,19 @@ public class Recipe implements Comparable<Recipe> {
         this.id = id;
     }
 
+    public String getNameRecipe() {
+        return nameRecipe;
+    }
+
     public void setNameRecipe(String nameRecipe) {
         this.nameRecipe = nameRecipe;
     }
 
-    public List<Ingredient> getIngredients() {
+    public List<String> getIngredients() {
         return Ingredients;
     }
 
-    public void setIngredients(List<Ingredient> ingredients) {
+    public void setIngredients(List<String> ingredients) {
         Ingredients = ingredients;
     }
 
