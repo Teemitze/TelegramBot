@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.com/Teemitze/TelegramBot.svg?branch=master)](https://travis-ci.com/Teemitze/TelegramBot)
+[![codecov](https://codecov.io/gh/Teemitze/TelegramBot/branch/master/graph/badge.svg)](https://codecov.io/gh/Teemitze/TelegramBot)
+![Email](https://img.shields.io/badge/email-teemitze@gmail.com-red.svg)
 # TelegramBot
 Данный бот может:
 - Получить все ролики из списка уроков coursehunter.net и добавить их в ваш Trello

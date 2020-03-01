@@ -1,0 +1,21 @@
+language: java
+jdk: openjdk13
+
+# после выполнения сборки запустить скрипт, который будет собирать статистику по JaCoCo
+# Здесь используется сторонний сервис https://codecov.io/
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+services:
+  - postgresql
+
+before_install:
+  - psql -c 'create database telegram_bot_test;' -U postgres
+
+# Отправлять уведомление на почту teemitze@gmail.com если сборка упала
+notifications:
+  email:
+    recipients:
+      -teemitze@gmail.com
+    on_success: never # default: change
+    on_failure: always # default: always
