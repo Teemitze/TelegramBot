@@ -1,29 +1,31 @@
 package food.repository;
 
-import dataBase.ConnectionFactory;
 import food.Recipe;
 
 import javax.annotation.Nullable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class RecipeRepository {
 
-    private Connection connection = ConnectionFactory.getConnection();
+    private Connection connection;
 
-    public void addRecipe(String recipeName, List<String> ingredients) {
+    public RecipeRepository(Connection connection) {
+        this.connection = connection;
+    }
+
+    public void addRecipe(Recipe recipe) {
         try (PreparedStatement psRecipe = connection.prepareStatement("INSERT INTO recipes(name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
              PreparedStatement psIngredients = connection.prepareStatement("INSERT INTO ingredients(name, recipe_id) VALUES (?, ?)")) {
-            psRecipe.setString(1, recipeName);
+            psRecipe.setString(1, recipe.getNameRecipe());
             psRecipe.execute();
 
             ResultSet rsRecipe = psRecipe.getGeneratedKeys();
 
             if (rsRecipe.next()) {
                 final int recipeID = rsRecipe.getInt(1);
-                for (String ingredient : ingredients) {
+                for (String ingredient : recipe.getIngredients()) {
                     psIngredients.setString(1, ingredient);
                     psIngredients.setInt(2, recipeID);
                     psIngredients.execute();
@@ -90,7 +92,7 @@ public class RecipeRepository {
 
             while (rs.next()) {
                 List<String> ingredients = getIngredientsByRecipeId(rs.getInt("id"));
-                recipe = new Recipe(rs.getString("name"), ingredients);
+                recipe = new Recipe(rs.getInt("id"), rs.getString("name"), ingredients);
             }
         } catch (SQLException e) {
             e.printStackTrace();

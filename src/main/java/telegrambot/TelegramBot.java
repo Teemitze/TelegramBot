@@ -2,6 +2,7 @@ package telegrambot;
 
 import API.trello.TrelloHelper;
 import configuration.Config;
+import dataBase.ConnectionFactory;
 import food.Recipe;
 import food.repository.RecipeRepository;
 import org.slf4j.Logger;
@@ -15,22 +16,28 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import parsers.CheckSite;
 import parsers.Parser;
 
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class AnnaBot extends TelegramLongPollingBot {
-    private final Logger logger = LoggerFactory.getLogger(AnnaBot.class);
+public class TelegramBot extends TelegramLongPollingBot {
+    private final Logger logger = LoggerFactory.getLogger(TelegramBot.class);
 
     List<Recipe> recipes = new ArrayList<>();
 
     private final Config config = Config.loadConfig();
     private final String BOT_NAME = config.telegramBotName;
     private final String TOKEN = config.telegramToken;
+    private final String url = "jdbc:postgresql://localhost:5432/telegram_bot";
+    private final String userDB = "postgres";
+    private final String passwordDB = "postgres";
     public final String INSTRUCTION_ADD_RECIPE = "Чтобы добавить рецепт напишите команду /add [Название рецепта]";
     public final String INSTRUCTION_DELETE_RECIPE = "Чтобы удалить рецепт напишите команду /del [ID рецепта]";
     private final String point = "\uD83D\uDD38";
+
+    final RecipeRepository recipeRepository = new RecipeRepository(ConnectionFactory.getConnection(url, userDB, passwordDB));
 
     final String infoBot =
             "Данный бот может:\n\n" +
@@ -99,7 +106,6 @@ public class AnnaBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasCallbackQuery()) {
-            RecipeRepository recipeRepository = new RecipeRepository();
             Recipe recipe = recipeRepository.findRecipeName(update.getCallbackQuery().getMessage().getText());
             recipes.add(recipe);
             return;
@@ -110,7 +116,7 @@ public class AnnaBot extends TelegramLongPollingBot {
             SendMessage message;
             switch (update.getMessage().getText()) {
                 case Menu.HELP, Menu.START -> message = startAndHelp(update);
-                case Menu.SHOW_RECIPES -> message = newSendMessage(update, allRecipes());
+                case Menu.SHOW_RECIPES -> message = newSendMessage(update, getAllRecipes());
                 case Menu.ADD_RECIPE -> message = newSendMessage(update, INSTRUCTION_ADD_RECIPE);
                 case Menu.DELETE_RECIPE -> message = newSendMessage(update, INSTRUCTION_DELETE_RECIPE);
                 case Menu.SHOW_INGREDIENTS -> message = newSendMessage(update, getIngredients());
@@ -124,8 +130,8 @@ public class AnnaBot extends TelegramLongPollingBot {
         }
     }
 
-    public String allRecipes() {
-        Set<Recipe> recipes = new TreeSet(new RecipeRepository().getAllRecipes());
+    public String getAllRecipes() {
+        Set<Recipe> recipes = new TreeSet(recipeRepository.getAllRecipes());
 
         StringBuilder recipeName = new StringBuilder();
         for (Recipe recipe : recipes) {
@@ -137,7 +143,6 @@ public class AnnaBot extends TelegramLongPollingBot {
     public String getIngredients() {
         StringBuilder stringBuilder = new StringBuilder();
         if (recipes.isEmpty()) {
-            RecipeRepository recipeRepository = new RecipeRepository();
             recipes = recipeRepository.getAllRecipes();
         }
         for (Recipe recipe : recipes) {
@@ -155,7 +160,6 @@ public class AnnaBot extends TelegramLongPollingBot {
     }
 
     public String getIngredientsById(int id) {
-        RecipeRepository recipeRepository = new RecipeRepository();
         Recipe recipe = recipeRepository.findRecipeByID(id);
         StringBuilder stringBuilder = new StringBuilder("Рецепт " + recipe.getNameRecipe() + " состоит из:\n");
 
@@ -184,10 +188,9 @@ public class AnnaBot extends TelegramLongPollingBot {
                 recipe.setIngredients(ingredients);
                 result = RECIPE + userMessage.substring(5) + " был добавлен!";
             }
-            new RecipeRepository().addRecipe(recipe.getNameRecipe(), recipe.getIngredients());
+            recipeRepository.addRecipe(recipe);
             message = newSendMessage(update, result);
         } else if (userMessage.matches("/del(\\s)\\d+$")) {
-            RecipeRepository recipeRepository = new RecipeRepository();
             Recipe recipe = recipeRepository.findRecipeByID(Integer.parseInt(userMessage.substring(5)));
             if (recipe != null) {
                 message = newSendMessage(update, RECIPE + recipe.getNameRecipe() + " был удалён!");

@@ -1,7 +1,7 @@
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import telegrambot.AnnaBot;
+import telegrambot.TelegramBot;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,7 +10,7 @@ public class Main {
         TelegramBotsApi botsApi = new TelegramBotsApi();
 
         try {
-            botsApi.registerBot(new AnnaBot());
+            botsApi.registerBot(new TelegramBot());
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }

@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionFactory {
-    public static Connection getConnection() {
+    public static Connection getConnection(final String url, final String user, final String password) {
         try {
-            return DriverManager.getConnection("jdbc:postgresql://localhost:5432/telegram_bot", "postgres", "postgres");
+            return DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/Teemitze/TelegramBot.svg?branch=master)](https://travis-ci.com/Teemitze/TelegramBot)
 # TelegramBot
 Данный бот может:
 - Получить все ролики из списка уроков coursehunter.net и добавить их в ваш Trello
