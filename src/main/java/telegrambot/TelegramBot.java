@@ -142,6 +142,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public String getIngredientsById(int id) {
         Recipe recipe = recipeRepository.findRecipeByID(id);
+        if (recipe == null) return "Такого рецепта нет!";
         StringBuilder stringBuilder = new StringBuilder("Рецепт " + recipe.getNameRecipe() + " состоит из:\n");
 
         for (String ingredient : recipe.getIngredients()) {
@@ -179,8 +180,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             } else {
                 message = newSendMessage(update, "Такого рецепта нет в базе!");
             }
-        } else if (userMessage.matches("/rec(\\s)\\d+$")) {
-            message = newSendMessage(update, getIngredientsById(Integer.parseInt(userMessage.substring(5))));
+        } else if (userMessage.matches("[0-9]+")) {
+            String recipe = getIngredientsById(Integer.parseInt(userMessage));
+            message = newSendMessage(update, recipe);
         } else if (userMessage.contains("http")) {
             CheckSite checkSite = new CheckSite(userMessage);
             Parser object = checkSite.distributorSite();
