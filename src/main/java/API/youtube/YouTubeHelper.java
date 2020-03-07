@@ -15,18 +15,20 @@ public class YouTubeHelper implements Parser {
     private final Logger logger = LoggerFactory.getLogger(YouTubeHelper.class);
 
     private final String site;
-    private final String playlistId;
 
     YouTubeServiceAPI youTubeServiceAPI = new YouTubeServiceAPI();
 
     public YouTubeHelper(String site) {
         this.site = site;
-        playlistId = getPlaylistId();
     }
 
     @Override
-    public String parsingTitle() {
-        JSONObject jsonObject = new JSONObject(youTubeServiceAPI.getVideoPlaylistTitle(playlistId));
+    public String parsingTitle(String siteURL) {
+        JSONObject jsonObject = new JSONObject(youTubeServiceAPI.getVideoPlaylistTitle(getPlaylistId(siteURL)));
+        return getTitleFromJson(jsonObject);
+    }
+
+    public String getTitleFromJson(JSONObject jsonObject){
         return jsonObject.getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getJSONObject("localized").get("title").toString();
     }
 
@@ -36,7 +38,7 @@ public class YouTubeHelper implements Parser {
 
         ArrayList<String> videos = new ArrayList<>();
 
-        JSONObject pageJson = new JSONObject(youTubeServiceAPI.getVideoPlaylist(playlistId, nextPageToken));
+        JSONObject pageJson = new JSONObject(youTubeServiceAPI.getVideoPlaylist(getPlaylistId(site), nextPageToken));
         final String videoCount = pageJson.getJSONObject("pageInfo").get("totalResults").toString();
         final int pageCount = (int) Math.ceil(Double.parseDouble(videoCount) / Double.parseDouble(MAX_RESULTS));
 
@@ -51,7 +53,7 @@ public class YouTubeHelper implements Parser {
 
             if (i >= 2) {
                 nextPageToken = pageJson.getString("nextPageToken");
-                pageJson = new JSONObject(youTubeServiceAPI.getVideoPlaylist(playlistId, nextPageToken));
+                pageJson = new JSONObject(youTubeServiceAPI.getVideoPlaylist(getPlaylistId(site), nextPageToken));
             }
         }
         return videos;
@@ -62,7 +64,7 @@ public class YouTubeHelper implements Parser {
         return site;
     }
 
-    public String getPlaylistId() {
-        return site.trim().substring(38);
+    public String getPlaylistId(String siteURL) {
+        return siteURL.trim().substring(38);
     }
 }

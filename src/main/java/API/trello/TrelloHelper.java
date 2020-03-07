@@ -18,7 +18,7 @@ public class TrelloHelper {
 
     public void trelloFillCard(Parser parser) {
         TrelloCard trelloCard = new TrelloCard();
-        trelloCard.setName(parser.parsingTitle());
+        trelloCard.setName(parser.parsingTitle(parser.getSite()));
         trelloCard.setDescription(parser.getSite());
         trelloCard.setCheckLists(new ArrayList<>());
 

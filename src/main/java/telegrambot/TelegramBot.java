@@ -1,6 +1,8 @@
 package telegrambot;
 
 import API.trello.TrelloHelper;
+import API.youtube.YouTubeHelper;
+import API.youtube.YouTubeServiceAPI;
 import configuration.Config;
 import dataBase.ConnectionFactory;
 import food.Recipe;
@@ -14,9 +16,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import parsers.CheckSite;
+import parsers.CourseHuntersHelper;
 import parsers.Parser;
 
-import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +40,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final String point = "\uD83D\uDD38";
 
     final RecipeRepository recipeRepository = new RecipeRepository(ConnectionFactory.getConnection(url, userDB, passwordDB));
+    final YouTubeServiceAPI youTubeServiceAPI = new YouTubeServiceAPI();
 
     final String infoBot =
             "Данный бот может:\n\n" +
@@ -203,7 +206,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         } else if (userMessage.contains("http")) {
             CheckSite checkSite = new CheckSite(userMessage);
             Parser object = checkSite.distributorSite();
-            String title = object.parsingTitle();
+            String title = "";
+            if (object instanceof YouTubeHelper) {
+                YouTubeHelper youTubeHelper = (YouTubeHelper) object;
+                title = youTubeHelper.parsingTitle(userMessage);
+            } else if(object instanceof CourseHuntersHelper) {
+                CourseHuntersHelper courseHuntersHelper = (CourseHuntersHelper) object;
+                title = courseHuntersHelper.parsingTitle(userMessage);
+            }
+
+            //title =
 
             message = newSendMessage(update, "Я добавила карточку " + "\"" + title + "\"" + " в ваш список Trello Bot!");
 
