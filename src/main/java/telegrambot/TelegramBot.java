@@ -40,7 +40,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final String point = "\uD83D\uDD38";
 
     final RecipeRepository recipeRepository = new RecipeRepository(ConnectionFactory.getConnection(url, userDB, passwordDB));
-    final YouTubeServiceAPI youTubeServiceAPI = new YouTubeServiceAPI();
 
     final String infoBot =
             "Данный бот может:\n\n" +
@@ -87,8 +86,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         List<KeyboardRow> keyboard = createButtons(
                 Menu.ADD_RECIPE,
                 Menu.DELETE_RECIPE,
-                Menu.SHOW_RECIPES,
-                Menu.SHOW_INGREDIENTS);
+                Menu.SHOW_RECIPES);
 
         replyKeyboardMarkup.setKeyboard(keyboard);
     }
@@ -122,7 +120,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case Menu.SHOW_RECIPES -> message = newSendMessage(update, getAllRecipes());
                 case Menu.ADD_RECIPE -> message = newSendMessage(update, INSTRUCTION_ADD_RECIPE);
                 case Menu.DELETE_RECIPE -> message = newSendMessage(update, INSTRUCTION_DELETE_RECIPE);
-                case Menu.SHOW_INGREDIENTS -> message = newSendMessage(update, getIngredients());
                 default -> message = method(update);
             }
             try {
@@ -141,25 +138,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             recipeName.append(recipe.getId()).append(") ").append(recipe.getNameRecipe()).append("\n");
         }
         return recipeName.toString();
-    }
-
-    public String getIngredients() {
-        StringBuilder stringBuilder = new StringBuilder();
-        if (recipes.isEmpty()) {
-            recipes = recipeRepository.getAllRecipes();
-        }
-        for (Recipe recipe : recipes) {
-            stringBuilder.append(recipes.indexOf(recipe) + 1)
-                    .append(") ")
-                    .append(recipe.getNameRecipe())
-                    .append(":\n");
-            for (String ingredient : recipe.getIngredients()) {
-                stringBuilder.append(point).append(ingredient).append("\n");
-            }
-            stringBuilder.append("\n");
-        }
-        recipes.clear();
-        return stringBuilder.toString();
     }
 
     public String getIngredientsById(int id) {
@@ -214,8 +192,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 CourseHuntersHelper courseHuntersHelper = (CourseHuntersHelper) object;
                 title = courseHuntersHelper.parsingTitle(userMessage);
             }
-
-            //title =
 
             message = newSendMessage(update, "Я добавила карточку " + "\"" + title + "\"" + " в ваш список Trello Bot!");
 
