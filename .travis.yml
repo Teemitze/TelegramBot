@@ -1,11 +1,6 @@
 language: java
 jdk: openjdk13
 
-# после выполнения сборки запустить скрипт, который будет собирать статистику по JaCoCo
-# Здесь используется сторонний сервис https://codecov.io/
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
 services:
   - postgresql
 
