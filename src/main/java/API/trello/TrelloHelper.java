@@ -10,6 +10,7 @@ import parsers.Parser;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TrelloHelper {
@@ -18,11 +19,11 @@ public class TrelloHelper {
 
     public void trelloFillCard(Parser parser) {
         TrelloCard trelloCard = new TrelloCard();
-        trelloCard.setName(parser.parsingTitle(parser.getSite()));
-        trelloCard.setDescription(parser.getSite());
+        trelloCard.setName(parser.getTitle().orElse("Не удалось получить заголовок"));
+        trelloCard.setDescription(parser.getURL());
         trelloCard.setCheckLists(new ArrayList<>());
 
-        List<String> checkboxes = parser.parsingContent();
+        List<String> checkboxes = parser.getContent().orElse(Collections.emptyList());
 
         TrelloServiceAPI trelloServiceAPI = new TrelloServiceAPI(trelloCard);
         trelloServiceAPI.addCard();

@@ -2,13 +2,17 @@ package API.youtube;
 
 import org.json.JSONObject;
 import org.testng.annotations.Test;
+import parsers.api.youtube.TrimPlaylistIdException;
+import parsers.api.youtube.YouTubeParser;
+import parsers.api.youtube.YouTubeParserUtil;
 
 import static org.testng.Assert.assertEquals;
 
 public class YouTubeHelperTest {
 
     final String siteURL = "https://www.youtube.com/playlist?list=PL6yLoZ_3Y0HKGL3F7vv2SNSrA3TkbXtBX";
-    final YouTubeHelper youTubeHelper = new YouTubeHelper(siteURL);
+    final YouTubeParser youTubeHelper = new YouTubeParser(siteURL);
+    final YouTubeParserUtil youTubeParserUtil = new YouTubeParserUtil();
 
     @Test
     public void testGetTitleFromJson() {
@@ -20,14 +24,17 @@ public class YouTubeHelperTest {
 
     @Test
     public void testGetSite() {
-        final String actual = siteURL;
-        final String expected = youTubeHelper.getSite();
-        assertEquals(actual, expected);
+        assertEquals(siteURL, youTubeHelper.getURL());
     }
 
     @Test
     public void testGetPlaylistId() {
-        final String actual = youTubeHelper.getPlaylistId(siteURL);
+        final String actual;
+        try {
+            actual = youTubeHelper.getPlaylistId(siteURL);
+        } catch (TrimPlaylistIdException e) {
+            throw new RuntimeException(e);
+        }
         final String expected = "PL6yLoZ_3Y0HKGL3F7vv2SNSrA3TkbXtBX";
         assertEquals(actual, expected);
     }

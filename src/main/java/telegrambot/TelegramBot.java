@@ -1,8 +1,6 @@
 package telegrambot;
 
 import API.trello.TrelloHelper;
-import API.youtube.YouTubeHelper;
-import API.youtube.YouTubeServiceAPI;
 import configuration.Config;
 import dataBase.ConnectionFactory;
 import food.Recipe;
@@ -16,8 +14,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import parsers.CheckSite;
-import parsers.CourseHuntersHelper;
 import parsers.Parser;
+import parsers.api.youtube.YouTubeParser;
+import parsers.html.CourseHuntersParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -185,20 +184,20 @@ public class TelegramBot extends TelegramLongPollingBot {
             message = newSendMessage(update, recipe);
         } else if (userMessage.contains("http")) {
             CheckSite checkSite = new CheckSite(userMessage);
-            Parser object = checkSite.distributorSite();
+            Parser parser = checkSite.distributorSite();
             String title = "";
-            if (object instanceof YouTubeHelper) {
-                YouTubeHelper youTubeHelper = (YouTubeHelper) object;
-                title = youTubeHelper.parsingTitle(userMessage);
-            } else if(object instanceof CourseHuntersHelper) {
-                CourseHuntersHelper courseHuntersHelper = (CourseHuntersHelper) object;
-                title = courseHuntersHelper.parsingTitle(userMessage);
+            if (parser instanceof YouTubeParser) {
+                YouTubeParser youTubeParser = new YouTubeParser(userMessage);
+                title = youTubeParser.getTitle().orElse("Не удалось получить заголовок");
+            } else if (parser instanceof CourseHuntersParser) {
+                CourseHuntersParser courseHuntersParser = new CourseHuntersParser(userMessage);
+                title = courseHuntersParser.getTitle().orElse("Не удалось получить заголовок");
             }
 
             message = newSendMessage(update, "Я добавила карточку " + "\"" + title + "\"" + " в ваш список Trello Bot!");
 
             TrelloHelper trelloHelper = new TrelloHelper();
-            trelloHelper.trelloFillCard(object);
+            trelloHelper.trelloFillCard(parser);
         }
         return message;
     }

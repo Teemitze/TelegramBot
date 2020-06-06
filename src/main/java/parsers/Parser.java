@@ -1,11 +1,13 @@
 package parsers;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface Parser {
-    String parsingTitle(String content);
 
-    List<String> parsingContent();
+    Optional<String> getTitle();
 
-    String getSite();
+    String getURL();
+
+    Optional<List<String>> getContent();
 }
