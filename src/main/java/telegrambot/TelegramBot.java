@@ -130,7 +130,11 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     public String getAllRecipes() {
-        Set<Recipe> recipes = new TreeSet(recipeRepository.getAllRecipes());
+        Set<Recipe> recipes = new TreeSet<>(recipeRepository.getAllRecipes());
+
+        if (recipes.isEmpty()) {
+            return "Рецептов в базе не найдено.";
+        }
 
         StringBuilder recipeName = new StringBuilder();
         for (Recipe recipe : recipes) {
