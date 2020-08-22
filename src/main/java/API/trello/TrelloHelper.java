@@ -17,7 +17,7 @@ public class TrelloHelper {
 
     private final Logger logger = LoggerFactory.getLogger(TrelloHelper.class);
 
-    public void trelloFillCard(Parser parser) {
+    public static TrelloCard trelloFillCard(Parser parser) {
         TrelloCard trelloCard = new TrelloCard();
         trelloCard.setName(parser.getTitle().orElse("Не удалось получить заголовок"));
         trelloCard.setDescription(parser.getURL());
@@ -43,6 +43,7 @@ public class TrelloHelper {
                 trelloServiceAPI.addCheckBox(trelloCheckList.getIdCheckList(), resultCheckBox); // Добавляем чек-боксы в чек-лист
             }
         }
+        return trelloCard;
     }
 
     private static JSONObject convertByteToJsonObject(HttpMethod postMethod) {

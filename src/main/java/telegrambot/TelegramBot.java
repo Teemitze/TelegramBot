@@ -1,6 +1,7 @@
 package telegrambot;
 
 import API.trello.TrelloHelper;
+import API.trello.dto.TrelloCard;
 import configuration.Config;
 import dataBase.ConnectionFactory;
 import food.Recipe;
@@ -13,15 +14,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import parsers.CheckSite;
 import parsers.Parser;
 import parsers.api.youtube.YouTubeParser;
 import parsers.html.CourseHuntersParser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class TelegramBot extends TelegramLongPollingBot {
     private final Logger logger = LoggerFactory.getLogger(TelegramBot.class);
@@ -36,23 +33,34 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final String passwordDB = "postgres";
     public final String INSTRUCTION_ADD_RECIPE = "Чтобы добавить рецепт напишите команду /add [Название рецепта]";
     public final String INSTRUCTION_DELETE_RECIPE = "Чтобы удалить рецепт напишите команду /del [ID рецепта]";
-    private final String point = "\uD83D\uDD38";
 
     final RecipeRepository recipeRepository = new RecipeRepository(ConnectionFactory.getConnection(url, userDB, passwordDB));
 
-    final String infoBot =
-            "Данный бот может:\n\n" +
-                    "✅ Показать случайный рецепт\n\n" +
-                    "✅ Добавить рецепт\n\n" +
-                    "✅ Удалить рецепт\n\n" +
-                    "✅ Показать все рецепты\n\n" +
-                    "✅ Получить все ролики из плейлиста YouTube и добавить их в ваш Trello\n\n" +
-                    "✅ Получить все ролики из списка уроков coursehunter.net и добавить их в ваш Trello\n\n" +
-                    "Данный бот не может:\n\n" +
-                    "❌ Выгулять вашего домашнего питомца\n\n" +
-                    "❌ Помыть посуду\n\n" +
-                    "❌ Сходить в магазин\n\n" +
-                    "❌ Убраться в вашем доме";
+    final String infoBot = """
+            Данный бот может:
+
+            ✅ Показать случайный рецепт
+
+            ✅ Добавить рецепт
+
+            ✅ Удалить рецепт
+
+            ✅ Показать все рецепты
+
+            ✅ Получить все ролики из плейлиста YouTube и добавить их в ваш Trello
+
+            ✅ Получить все ролики из списка уроков coursehunter.net и добавить их в ваш Trello
+
+            Данный бот не может:
+
+            ❌ Выгулять вашего домашнего питомца
+
+            ❌ Помыть посуду
+
+            ❌ Сходить в магазин
+
+            ❌ Убраться в вашем доме
+                     """;
 
     @Override
     public String getBotUsername() {
@@ -148,8 +156,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (recipe == null) return "Такого рецепта нет!";
         StringBuilder stringBuilder = new StringBuilder("Рецепт " + recipe.getNameRecipe() + " состоит из:\n");
 
+        final String orangeDiamond = "\uD83D\uDD38";
+
         for (String ingredient : recipe.getIngredients()) {
-            stringBuilder.append(point).append(ingredient).append("\n");
+            stringBuilder.append(orangeDiamond).append(ingredient).append("\n");
         }
         return stringBuilder.toString();
     }
@@ -186,23 +196,31 @@ public class TelegramBot extends TelegramLongPollingBot {
         } else if (userMessage.matches("[0-9]+")) {
             String recipe = getIngredientsById(Integer.parseInt(userMessage));
             message = newSendMessage(update, recipe);
-        } else if (userMessage.contains("http")) {
-            CheckSite checkSite = new CheckSite(userMessage);
-            Parser parser = checkSite.distributorSite();
-            String title = "";
-            if (parser instanceof YouTubeParser) {
-                YouTubeParser youTubeParser = new YouTubeParser(userMessage);
-                title = youTubeParser.getTitle().orElse("Не удалось получить заголовок");
-            } else if (parser instanceof CourseHuntersParser) {
-                CourseHuntersParser courseHuntersParser = new CourseHuntersParser(userMessage);
-                title = courseHuntersParser.getTitle().orElse("Не удалось получить заголовок");
-            }
-
-            message = newSendMessage(update, "Я добавила карточку " + "\"" + title + "\"" + " в ваш список Trello Bot!");
-
-            TrelloHelper trelloHelper = new TrelloHelper();
-            trelloHelper.trelloFillCard(parser);
+        } else if (isSiteCanBeParsed(userMessage)) {
+            Parser parser = distributorSite(userMessage).get();
+            TrelloCard trelloCard = TrelloHelper.trelloFillCard(parser);
+            return newSendMessage(update, "Я добавила карточку " + "\"" + trelloCard.getName() + "\"" + " в ваш список Trello Bot!");
         }
         return message;
+    }
+
+
+    public Optional<Parser> distributorSite(String site) {
+
+        Optional<Parser> result = Optional.empty();
+
+        if (site.matches("^https?+://(www\\.)?youtube.com/playlist\\?list=.{18,34}$")) {
+            result = Optional.of(new YouTubeParser(site));
+        } else if (site.matches("^https?+://(www\\.)?coursehunter.net/course/.*$")) {
+            result = Optional.of(new CourseHuntersParser(site));
+        } else {
+            logger.error("Site not defined");
+        }
+
+        return result;
+    }
+
+    private boolean isSiteCanBeParsed(String site) {
+        return distributorSite(site).isPresent();
     }
 }
